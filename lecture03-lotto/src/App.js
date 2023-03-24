@@ -8,13 +8,15 @@ import {
   useRecoilValue,
 } from "recoil";
 
-const userInputState1 = atom({ key: "userInputState1", default: "" });
-const userInputState2 = atom({ key: "userInputState2", default: "" });
+import Button from "./button";
+
+const userInputStateA = atom({ key: "userInputStateA", default: "" });
+const userInputStateB = atom({ key: "userInputStateB", default: "" });
 
 const intCountState1 = selector({
   key: "intCountState1", // unique ID (with respect to other atoms/selectors)
   get: ({ get }) => {
-    const text1 = get(userInputState1);
+    const text1 = get(userInputStateA);
     return text1;
   },
 });
@@ -22,13 +24,13 @@ const intCountState1 = selector({
 const intCountState2 = selector({
   key: "intCountState2", // unique ID (with respect to other atoms/selectors)
   get: ({ get }) => {
-    const text2 = get(userInputState2);
+    const text2 = get(userInputStateB);
     return text2;
   },
 });
 
 function UserInput1() {
-  const [text1, setText] = useRecoilState(userInputState1);
+  const [text1, setText] = useRecoilState(userInputStateA);
 
   const onChange = (event) => {
     setText(event.target.value);
@@ -43,7 +45,7 @@ function UserInput1() {
 }
 
 function UserInput2() {
-  const [text2, setText] = useRecoilState(userInputState2);
+  const [text2, setText] = useRecoilState(userInputStateB);
 
   const onChange = (event) => {
     setText(event.target.value);
@@ -71,42 +73,39 @@ function GetRandom9Ints() {
   return random9Ints;
 }
 
-// 난수 7개 숫자
-function GetRandom7Ints() {
-  const random7Ints = [];
-  for (let i = 0; i < 7; i++) {
-    random7Ints.push(Math.floor(Math.random() * 45) + 1 + " ");
-  }
-
-  return random7Ints;
-}
-
 // 사용자가 입력한 첫 번째 값
-function FirstInput() {
+export function FirstInput() {
   const digit1 = useRecoilValue(intCountState1);
 
   return Number.parseInt(digit1);
 }
 
 // 사용자가 입력한 두 번째 값
-function SecondInput() {
+export function SecondInput() {
   const digit2 = useRecoilValue(intCountState2);
 
   return Number.parseInt(digit2);
 }
 
+// 사용자 입력값 2개 + 난수 7개
 function Numbers() {
   const NumberArr = [];
   // NumberArr.push(FirstInput(), SecondInput());
-  NumberArr.push(1, 2);
-  for (let i = 2; i < 7; i++) {
-    NumberArr.push(Math.floor(Math.random() * 45) + 1);
+  NumberArr.push(FirstInput() + " ", SecondInput() + " ");
+
+  for (let i = 2; i < 9; i++) {
+    NumberArr.push(Math.floor(Math.random() * 45) + 1 + " ");
     for (let j = 0; j < i; j++) {
       if (NumberArr[i] == NumberArr[j]) {
         NumberArr.pop();
       }
     }
   }
+
+  NumberArr.sort(function compare(a, b) {
+    return a - b;
+  });
+
   return NumberArr;
 }
 
@@ -124,7 +123,7 @@ function App() {
         {/* 랜덤 7개 숫자 : <GetRandom7Ints /> */}
         입력 숫자 : <Numbers />
         <br />
-        {/* <valid /> */}
+        <Button />
       </RecoilRoot>
     </>
   );
