@@ -7,126 +7,216 @@ import {
   useRecoilState,
   useRecoilValue,
 } from "recoil";
+import { useState } from "react";
 
-import Button from "./button";
+const number1 = atom({
+  key: "number1",
+  default: "",
+});
 
-const userInputStateA = atom({ key: "userInputStateA", default: "" });
-const userInputStateB = atom({ key: "userInputStateB", default: "" });
+const number2 = atom({
+  key: "number2",
+  default: "",
+});
 
-const intCountState1 = selector({
-  key: "intCountState1", // unique ID (with respect to other atoms/selectors)
+const resultSet = atom({
+  key: "resultSet",
+  default: [13, 40, 42, 15, 9, 28, 19, 4, 20],
+});
+
+function InputNumber1() {
+  const num1 = useRecoilValue(num1Selector);
+
+  // return <>{num1}</>
+  if (isNaN(num1)) {
+    return <>{num1}</>;
+  }
+}
+
+function InputNumber2() {
+  const num2 = useRecoilValue(num2Selector);
+
+  if (isNaN(num2)) {
+    return <>{num2}</>;
+  }
+}
+
+const num1Selector = selector({
+  key: "num1Selector",
   get: ({ get }) => {
-    const text1 = get(userInputStateA);
-    return text1;
+    const num = get(number1);
+    if (num.length === 0) {
+      return "";
+    } else {
+      if (isNaN(num)) {
+        return "입력이 숫자가 아닙니다.";
+      } else {
+        return Number(num);
+      }
+    }
   },
 });
 
-const intCountState2 = selector({
-  key: "intCountState2", // unique ID (with respect to other atoms/selectors)
+const num2Selector = selector({
+  key: "num2Selector",
   get: ({ get }) => {
-    const text2 = get(userInputStateB);
-    return text2;
+    const num = get(number2);
+    if (num.length === 0) {
+      return "";
+    } else {
+      if (isNaN(num)) {
+        return "입력이 숫자가 아닙니다.";
+      } else {
+        return Number(num);
+      }
+    }
   },
 });
 
-function UserInput1() {
-  const [text1, setText] = useRecoilState(userInputStateA);
+const resultSetSelector = selector({
+  key: "resultSetSelector",
+  get: ({ get }) => {
+    const list = get(resultSet);
+    return list;
+  },
+});
+
+function TextInputNum1() {
+  const [numberState1, setNumberState1] = useRecoilState(number1);
 
   const onChange = (event) => {
-    setText(event.target.value);
+    setNumberState1(event.target.value);
   };
 
   return (
     <div>
-      <input type="text" value={text1} onChange={onChange} /> <br />
-      test: {text1}
+      첫번째 입력 : &nbsp;
+      <input type="text" value={numberState1} onChange={onChange} />
+      <br />
     </div>
   );
 }
 
-function UserInput2() {
-  const [text2, setText] = useRecoilState(userInputStateB);
+function TextInputNum2() {
+  const [numberState2, setNumberState2] = useRecoilState(number2);
 
   const onChange = (event) => {
-    setText(event.target.value);
+    setNumberState2(event.target.value);
   };
 
   return (
     <div>
-      <input type="text" value={text2} onChange={onChange} /> <br />
-      test: {text2}
+      두번째 입력 : &nbsp;
+      <input type="text" value={numberState2} onChange={onChange} />
+      <br />
     </div>
   );
 }
 
-// 당첨 번호 9개 숫자
-function GetRandom9Ints() {
-  const random9Ints = [];
-  for (let i = 0; i < 9; i++) {
-    random9Ints.push(Math.floor(Math.random() * 45) + 1 + " ");
+function InitializeLottoNumber() {
+  const num1 = useRecoilValue(number1);
+  const num2 = useRecoilValue(number2);
+  const resultSetVar = useRecoilValue(resultSetSelector);
+
+  // 난수 생성
+  if (!isNaN(num1) && !isNaN(num2)) {
+    var tempList = [];
+    for (var i = 0; i < 7; i++) {
+      tempList.push(Math.floor(Math.random() * 45) + 1);
+    }
+    tempList.push(num1);
+    tempList.push(num2);
+    var sortedList = bubble_sort(tempList);
+    var sortedResult = bubble_sort(resultSetVar);
+
+    var count = 0;
+    var resultStr = "꽝";
+    for (var i = 0; i < 9; i++) {
+      if (Number(tempList[i]) === Number(resultSetVar[i])) {
+        count++;
+      }
+    }
+    if (count >= 3 && count < 9) {
+      resultStr = "보너스";
+    } else if (count === 9) {
+      resultStr = "1등 당첨";
+    }
+
+    return (
+      <div>
+        <br />
+        응모 번호 : &nbsp;
+        {/* {tempList.map((value, key) => (
+          <u className="u_text">{value + " "}</u>
+        ))} */}
+        {sortedList.map((value3, key) => (
+          <u className="u_text">{value3 + " "}</u>
+        ))}
+        <br />
+        당첨 번호 : &nbsp;
+        {sortedResult.map((value2, key) => (
+          <u className="u_text">{value2 + " "}</u>
+        ))}
+        <br />
+        <h4 className="u_text">
+          {resultStr}, {count} 개 당첨
+        </h4>
+        {/* 리스트 정렬 : &nbsp;
+        {sortedList.map((value3, key) => (
+          <u className="u_text">{value3 + " "}</u>
+        ))} */}
+      </div>
+    );
+  }
+}
+
+function bubble_sort(original) {
+  var list = [];
+
+  for (var i = 0; i < 9; i++) {
+    list.push(original[i]);
   }
 
-  random9Ints.sort(function compare(a, b) {
-    return a - b;
-  });
-
-  return random9Ints;
-}
-
-// 사용자가 입력한 첫 번째 값
-export function FirstInput() {
-  const digit1 = useRecoilValue(intCountState1);
-
-  return Number.parseInt(digit1);
-}
-
-// 사용자가 입력한 두 번째 값
-export function SecondInput() {
-  const digit2 = useRecoilValue(intCountState2);
-
-  return Number.parseInt(digit2);
-}
-
-// 사용자 입력값 2개 + 난수 7개
-function Numbers() {
-  const NumberArr = [];
-  // NumberArr.push(FirstInput(), SecondInput());
-  NumberArr.push(FirstInput() + " ", SecondInput() + " ");
-
-  for (let i = 2; i < 9; i++) {
-    NumberArr.push(Math.floor(Math.random() * 45) + 1 + " ");
-    for (let j = 0; j < i; j++) {
-      if (NumberArr[i] == NumberArr[j]) {
-        NumberArr.pop();
+  for (var i = 0; i < 9; i++) {
+    for (var k = 0; k < i; k++) {
+      if (list[i] < list[k]) {
+        var temp = list[i];
+        list[i] = list[k];
+        list[k] = temp;
       }
     }
   }
-
-  NumberArr.sort(function compare(a, b) {
-    return a - b;
-  });
-
-  return NumberArr;
+  return list;
 }
 
-function App() {
+export default function Lotto() {
+  const [flag, setFlag] = useState(false);
   return (
-    <>
-      <RecoilRoot>
-        <h1>Lotto</h1>
-        <h3>난수 7개와 입력하신 2개의 값을 이용해 추첨합니다!</h3>
-        <h5>1~45 까지의 자연수를 넣어주세요.</h5>
-        첫 번째 번호 : <UserInput1 />
-        두 번째 번호 : <UserInput2 />
-        당첨 번호 : <GetRandom9Ints />
-        <br />
-        {/* 랜덤 7개 숫자 : <GetRandom7Ints /> */}
-        입력 숫자 : <Numbers />
-        <br />
-        <Button />
-      </RecoilRoot>
-    </>
+    <div className="mainDiv">
+      <div className="childrenDiv">
+        <RecoilRoot>
+          <div>
+            <h1>Lotto</h1>
+            <h3>난수 7개와 입력하신 2개의 값을 이용해 추첨합니다!</h3>
+            <h5>1~45 까지의 자연수를 넣어주세요.</h5>
+            <TextInputNum1 />
+            <InputNumber1 />
+            <TextInputNum2 />
+            <InputNumber2 />
+          </div>
+          <div>
+            <button
+              className="button"
+              onClick={() => {
+                setFlag(!flag);
+              }}
+            >
+              추첨
+            </button>
+          </div>
+          {flag ? <InitializeLottoNumber /> : <></>}
+        </RecoilRoot>
+      </div>
+    </div>
   );
 }
-
-export default App;

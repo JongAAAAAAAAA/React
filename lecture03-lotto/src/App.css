@@ -36,3 +36,26 @@
     transform: rotate(360deg);
   }
 }
+
+.mainDiv {
+  display: flex;
+  border: 2px;
+  padding: 6px;
+}
+
+.childrenDiv {
+  flex: 1;
+  flex-direction: column;
+  text-align: center;
+}
+
+.button {
+  background-color: rgb(255, 255, 255);
+  margin-top: 50px;
+  width: fit-content;
+  height: fit-content;
+}
+
+.u_text {
+  text-shadow: #000000;
+}
