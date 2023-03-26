@@ -49,7 +49,7 @@ const num1Selector = selector({
       return "";
     } else {
       if (isNaN(num)) {
-        return "입력이 숫자가 아닙니다.";
+        return "자연수를 입력해주세요.";
       } else {
         return Number(num);
       }
@@ -65,7 +65,7 @@ const num2Selector = selector({
       return "";
     } else {
       if (isNaN(num)) {
-        return "입력이 숫자가 아닙니다.";
+        return "자연수를 입력해주세요.";
       } else {
         return Number(num);
       }
